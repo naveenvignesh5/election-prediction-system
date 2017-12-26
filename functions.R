@@ -22,11 +22,8 @@ cleanTweets <- function(tweets) {
     tweets.df <- twListToDF(tweets)
     myCorpus <- Corpus(VectorSource(tweets.df$text)) 
     myCorpus <- cleanCorpus(myCorpus)
-    # myCorpusCopy <- myCorpus
-    # myCorpus <- lapply(myCorpus,specialStem,dictionary=,myCorpusCopy)
     return (myCorpus)
 }
-
 
 cleanCorpus <- function(myCorpus) {
     myCorpus <- tm_map(myCorpus,removePunctuation)
@@ -34,7 +31,9 @@ cleanCorpus <- function(myCorpus) {
     myCorpus <- tm_map(myCorpus,removeWords,stopwords("english"))
     myCorpus <- tm_map(myCorpus, removeWords, c("like", "video"))
     myCorpus <- tm_map(myCorpus, stripWhitespace)
+    myCorpusCopy <- myCorpus
     myCorpus <- tm_map(myCorpus, stemDocument)
+    myCorpus <- lapply(myCorpus,specialStem,dictionary=myCorpusCopy)
     return (myCorpus)
 }
 
@@ -56,14 +55,16 @@ queryTweets <- function(query,corpus) {
     for(i in 1:length(corpus)) {
         temp <- unlist(strsplit(toString(corpus[[i]]$content),split=" "))
         if(query %in% temp) {
-            # print(corpus[[i]]$content)
-            res = c(res,corpus[[i]]$content)
+            res <- c(res,corpus[[i]]$content)
         }
     }
-    res = unique(res)
+    res <- unique(res)
     return(res)
 }
 
+# ----------------------- REMOVING DUPLICATES ---------------------------
+
+# method to remove near duplicates
 shingleVector <- function(vector) {
     
 }
