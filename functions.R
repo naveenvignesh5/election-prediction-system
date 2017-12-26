@@ -60,5 +60,10 @@ queryTweets <- function(query,corpus) {
             res = c(res,corpus[[i]]$content)
         }
     }
-    print(res)
+    res = unique(res)
+    return(res)
+}
+
+shingleVector <- function(vector) {
+    
 }
