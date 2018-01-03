@@ -4,10 +4,6 @@ setupTwitterAPI <- function() {
     setup_twitter_oauth(apiKey,apiSecret,access_token,access_token_secret)
 }
 
-setupDatabase <- function() {
-    # setting up mysql connection
-    register_mysql_backend(dbname,dbhost,dbuser,dbpass)
-}
 
 #------------------------TWITTER SEARCH---------------------
 
@@ -15,6 +11,10 @@ searchTweets <- function() {
     generalTweets <- searchTwitter(tweetQuery,no,lang)
     return (generalTweets)
 }
+
+#------------------------- DATABASE -------------------------------
+
+
 
 #----------------------- CLEANING THE TWEETS -------------------------
 
@@ -51,15 +51,30 @@ AddItemNaive <- function(item,arr) {
 }
 
 queryTweets <- function(query,corpus,org_tweets_df) {
+    # converting raw tweets into document corpus containing only raw text details about the tweet
     tweets.df <- twListToDF(org_tweets_df)
     myCorpus <- Corpus(VectorSource(tweets.df$text)) 
+
+    # vector buffer to store queried tweets
     res = c()
+
+    # linearly searching array for match with query
     for(i in 1:length(corpus)) {
         temp <- unlist(strsplit(toString(corpus[[i]]$content),split=" "))
         if(query %in% temp) {
             res <- c(res,myCorpus[[i]]$content)
         }
     }
+
+    # binary search alternative - for increasing performance
+    # first <- 0
+    # last <- length(corpus)
+    # middle <- (first + last) / 2
+
+    # while(first <= last) {
+    #     if()
+    # }
+    # removing duplicate items from vector and storing back to buffer
     res <- unique(res)
     return(res)
 }
@@ -137,7 +152,7 @@ score.sentiment = function(sentences, pos.words, neg.words, .progress='none')
 
 calculateSentiment <- function(tweets) {
     sample <- setupPosNeg()
-    score = score.sentiment(tweets,sample$pos,sample$neg,.progress="text")
-    print(score)
+    score = score.sentiment(tweets,sample$pos,sample$neg,.progress="none")
     return(score)
 }
+
