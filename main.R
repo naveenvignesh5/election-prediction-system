@@ -15,13 +15,18 @@ source("functions.R")
 setupTwitterAPI()
 
 #setting up mysql database for tweets storage
-# setupDatabase()
 
 # search and storing tweets into election database
 tweetData <- searchTweets()
-
+tweetDataCopy <- tweetData
 tweetData <- cleanTweets(tweetData)
 
-queryTweets(searchQuery,tweetData)
+queryData <- queryTweets(searchQuery,tweetData,tweetDataCopy)
 
-# print(queryData)
+scores <- calculateSentiment(queryData)
+
+scores$positive <- as.numeric(scores$score >0)
+scores$negative <- as.numeric(scores$score >0)
+scores$neutral <- as.numeric(scores$score==0)
+
+print(sum(scores$positive))
