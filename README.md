@@ -14,7 +14,9 @@ for elections.
 
 ### Steps to execute the project
 - Download / Clone the repository
-- Run command 
+- Install Mongo DB
+- Start Mongo Database in localhost
+- Run command mongod.exe --dbpath 'path_to_database_folder'
 `Rscript main.R`
 - Plots will be generated in a PDF file.
 
