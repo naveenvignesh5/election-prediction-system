@@ -1,4 +1,6 @@
-# R script containing all mathematical functions
+# R script containing all mathematical and logic functions
+
+#------------------------- SETTING UP TWITTER -----------------
 
 setupTwitterAPI <- function() {
     setup_twitter_oauth(apiKey,apiSecret,access_token,access_token_secret)
@@ -12,9 +14,22 @@ searchTweets <- function() {
     return (generalTweets)
 }
 
-#------------------------- DATABASE -------------------------------
+#------------------------- DATABASE RELATED FUNCTIONS -------------------------------
 
+setupMongoDatabase <- function() {
+    dbconn <- mongo(collection=dbcollection)
+}
 
+storeTweets <- function(tweets,collection) {
+    df <- twListToDF(tweets)
+    con <- mongo(collection)
+    con$insert(df)
+}
+
+getTweets <- function(collection) {
+    con <- mongo(collection)
+    tweets <- con$find('{}')
+}
 
 #----------------------- CLEANING THE TWEETS -------------------------
 
@@ -53,7 +68,8 @@ AddItemNaive <- function(item,arr) {
 queryTweets <- function(query,corpus,org_tweets_df) {
     # converting raw tweets into document corpus containing only raw text details about the tweet
     tweets.df <- twListToDF(org_tweets_df)
-    myCorpus <- Corpus(VectorSource(tweets.df$text)) 
+    tweets.df[[0]]
+    myCorpus <- Corpus(VectorSource(tweets.df$text))
 
     # vector buffer to store queried tweets
     res = c()
@@ -64,7 +80,7 @@ queryTweets <- function(query,corpus,org_tweets_df) {
         if(query %in% temp) {
             res <- c(res,myCorpus[[i]]$content)
         }
-    }
+    }  
 
     # binary search alternative - for increasing performance
     # first <- 0
@@ -88,6 +104,7 @@ queryTweets <- function(query,corpus,org_tweets_df) {
 
 #------------------------- SENTIMENT ANALYSIS -------------------------------
 
+# return vector of positive and negative words
 setupPosNeg <- function(posText,negText) {
     posText <- read.delim("positive.txt", header=FALSE, stringsAsFactors=FALSE)
     posText <- posText$V1
@@ -152,7 +169,6 @@ score.sentiment = function(sentences, pos.words, neg.words, .progress='none')
 
 calculateSentiment <- function(tweets) {
     sample <- setupPosNeg()
-    score = score.sentiment(tweets,sample$pos,sample$neg,.progress="none")
+    score <- score.sentiment(tweets,sample$pos,sample$neg,.progress="none")
     return(score)
 }
-
