@@ -11,7 +11,10 @@ for elections.
     * Number of tweets
     * Time window of the phenomenon
     * User Profile characteristics
-
+- Calculates the following parameters
+    * Relative Frequency - Ratio of total tweets per day to no. of tweets of particular party.
+    * Positive Negative Ratio - Ratio of positive no. of tweets to that of negative no. of tweets.
+    
 ### Steps to execute the project
 - Download / Clone the repository
 - Install Mongo DB
@@ -25,3 +28,7 @@ for elections.
 - environment.R -- contains the global parameters to be used
 - packages.R -- contains the list of libraries / R packages to be used in the project
 - main.R -- main module where the project runs.
+- mine.R -- module that must be executed to mine data from twitter API as needed.
+
+### Database Configurations
+- Start Mongo DB server and that's it. You database is ready to be used.

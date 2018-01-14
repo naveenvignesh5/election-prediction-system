@@ -6,35 +6,43 @@ setupTwitterAPI <- function() {
     setup_twitter_oauth(apiKey,apiSecret,access_token,access_token_secret)
 }
 
-
 #------------------------TWITTER SEARCH---------------------
 
 searchTweets <- function() {
-    generalTweets <- searchTwitter(tweetQuery,no,lang)
+    tweetQuery <- paste(searchQuery, collapse = " OR ")
+    print("Started Getting Tweets")                          
+    generalTweets <- searchTwitter(tweetQuery,no,lang) 
+    generalTweets <- strip_retweets(generalTweets,strip_manual=TRUE,strip_mt=TRUE)
+    print("Finished Getting Tweets")
     return (generalTweets)
 }
 
 #------------------------- DATABASE RELATED FUNCTIONS -------------------------------
 
 setupMongoDatabase <- function() {
-    dbconn <- mongo(collection=dbcollection)
+    dbconn <<- mongo(collection=dbcollection)
 }
 
-storeTweets <- function(tweets,collection) {
+storeTweets <- function(tweets) {
+    print("Started Storage Process")
     df <- twListToDF(tweets)
-    con <- mongo(collection)
-    con$insert(df)
+    df$text <- lapply(df$text,function(x) iconv(x,"latin1","ASCII",sub=""))
+    df$text <- lapply(df$text,function(x) gsub('(http\\S+\\s*)|(#)|(@)|(\n)|(")|(&amp)', '',x))
+    dbconn$insert(df)
+    print("Inserted Tweets to Database")
 }
 
-getTweets <- function(collection) {
-    con <- mongo(collection)
-    tweets <- con$find('{}')
+getTweets <- function(coll) {
+    conn <- mongo(collection=coll)
+    tweets <- conn$find('{}')
+    return(tweets)
 }
 
 #----------------------- CLEANING THE TWEETS -------------------------
 
 cleanTweets <- function(tweets) {
-    tweets.df <- twListToDF(tweets)
+    tweets.df <- tweets
+    # tweets.df$text <- removeEmoticons(tweets.df$text)
     myCorpus <- Corpus(VectorSource(tweets.df$text)) 
     myCorpus <- cleanCorpus(myCorpus)
     return (myCorpus)
@@ -59,6 +67,7 @@ specialStem <- function(x,dictionary) {
     x <- paste(x, sep="", collapse=" ")
     PlainTextDocument(stripWhitespace(x))
 }
+
 #----------------------- QUERY TWEETS -------------------------
 
 AddItemNaive <- function(item,arr) {
@@ -66,54 +75,53 @@ AddItemNaive <- function(item,arr) {
 }
 
 queryTweets <- function(query,corpus,org_tweets_df) {
+    
     # converting raw tweets into document corpus containing only raw text details about the tweet
-    tweets.df <- twListToDF(org_tweets_df)
-    tweets.df[[0]]
+    tweets.df <- org_tweets_df
+    
+    # creating document corpuses from data frames
     myCorpus <- Corpus(VectorSource(tweets.df$text))
+    
+    orgCorpus <- Corpus(VectorSource(corpus$text))
 
     # vector buffer to store queried tweets
     res = c()
 
     # linearly searching array for match with query
     for(i in 1:length(corpus)) {
-        temp <- unlist(strsplit(toString(corpus[[i]]$content),split=" "))
+
+        # splitting sentence into vector of words
+        temp <- unlist(strsplit(toString(corpus[[i]]$content),split=" ")) 
+        
         if(query %in% temp) {
             res <- c(res,myCorpus[[i]]$content)
         }
+
     }  
 
-    # binary search alternative - for increasing performance
-    # first <- 0
-    # last <- length(corpus)
-    # middle <- (first + last) / 2
-
-    # while(first <= last) {
-    #     if()
-    # }
-    # removing duplicate items from vector and storing back to buffer
+    # removing duplicates from resultant corpus that may be re-tweets
     res <- unique(res)
     return(res)
 }
 
-# ----------------------- REMOVING DUPLICATES ---------------------------
-
-# method to remove near duplicates
-# shingleVector <- function(vector) {
-    
-# }
-
 #------------------------- SENTIMENT ANALYSIS -------------------------------
 
-# return vector of positive and negative words
 setupPosNeg <- function(posText,negText) {
+    # creating file objects from text files containing positive and negative terms 
     posText <- read.delim("positive.txt", header=FALSE, stringsAsFactors=FALSE)
-    posText <- posText$V1
-    posText <- unlist(lapply(posText, function(x) { str_split(x, "\n") }))
     negText <- read.delim("negative.txt", header=FALSE, stringsAsFactors=FALSE)
+
+    posText <- posText$V1
     negText <- negText$V1
+
+    # creating vector of words contained in files for sampling words for sentiment analysis
+    posText <- unlist(lapply(posText, function(x) { str_split(x, "\n") }))
+
     negText <- unlist(lapply(negText, function(x) { str_split(x, "\n") }))
+
     pos.words = c(posText, 'upgrade')
     neg.words = c(negText, 'wtf', 'wait', 'waiting','epicfail', 'mechanical')
+
     return(list("pos"=pos.words,"neg"=neg.words))
 }
 
@@ -171,4 +179,124 @@ calculateSentiment <- function(tweets) {
     sample <- setupPosNeg()
     score <- score.sentiment(tweets,sample$pos,sample$neg,.progress="none")
     return(score)
+}
+
+# method to generate pnr ratio using sentiment count 
+generatePNR <- function(data) {
+    data$created <- as.Date(data$created,format='%d%m%y')
+    dates <- table(cut(data$created,'day'))
+    dates <- data.frame(Date=format(as.Date(names(dates))))
+    
+    dates <- as.vector(dates$Date)
+    ratios <- c()
+    for(i in 1:length(dates)) {
+        date <- dates[i]
+        df <- subset(data,data$created == date)
+
+        scores <- calculateSentiment(df$text)
+
+        positive <- as.numeric(scores$score > 0)
+        negative <- as.numeric(scores$score < 0)
+        neutral <- as.numeric(scores$score==0)
+
+        pnratio <- sum(positive) / sum(negative)
+        ratios <- c(ratios,pnratio)        
+    }
+
+    ratios <- round(ratios,digits=2)
+    pnr <- data.frame(Date=dates,pnr=ratios)
+    return(pnr)
+}
+
+# ------------------------------ CLASSIFICATION FUNCTIONS ----------------------------------
+ 
+classifyAndStore <- function(x) {
+    bjp <- paste(bjp,collapse='|')
+    congress <- paste(congress,collapse='|')
+        
+    indices <- grep(bjp,x$text)
+
+    con <- mongo(collection="bjp_tweets")
+    for(i in indices) {
+        con$insert(x[i,])
+    }
+
+    indices <- grep(congress,x$text)
+
+    con <- mongo(collection="congress_tweets")
+    for(i in indices) con$insert(x[i,])
+}
+
+#------------------------------- GENERATE FREQUENCY --------------------------------
+
+generateFrequency <- function(data) {
+    data$created <- as.Date(data$created,format='%d%m%y')
+    tab <- table(cut(data$created,'day'))
+    frequency <- data.frame(Date=format(as.Date(names(tab)),'%d-%m-%y'),Frequency=as.vector(tab))
+    return(frequency)
+}
+
+# method to generate relative frequency
+generateRF <- function(gen,party) {
+    gen_freq <- generateFrequency(gen)
+    party_freq <- generateFrequency(party)
+
+    pnr <- round((party_freq$Frequency / gen_freq$Frequency),digits=2)
+    return(pnr)
+}
+
+#------------------------------- PLOTTING FUNCTIONS --------------------------------
+
+plotSentiment <- function(data,plot_title) {
+    n <- length(data)
+    
+    Types <- c("Positive","Negative","Neutral")
+
+    positive <- as.numeric(data$score > 0)
+    negative <- as.numeric(data$score < 0)
+    neutral <- as.numeric(data$score == 0)
+
+    score <- c(sum(positive),sum(negative),sum(neutral))
+    score <- (score / n) * 100 # converting score to percentage
+    sentiment <- data.frame(Types,score)
+
+    plot <- ggplot(data=sentiment,aes(x=Types,y=score,fill=Types)) + geom_bar(stat="identity")+theme_minimal()
+    plot <- plot + scale_fill_manual(values=c(neg_color,neutral_color,pos_color)) + ggtitle(plot_title)
+    plot <- plot + scale_y_continuous(limits = c(0, 100)) + xlab("Sentiment Types") + ylab("% of Sentiment")
+    
+    return(plot)
+}
+
+plotTweetFrequency <- function(freqData) {
+    plot <- ggplot(freqData,aes(Date,group=1))
+    plot <- plot + geom_line(aes(y=BJP,colour="BJP"))
+    plot <- plot + geom_line(aes(y=Congress,colour="Congress"))
+    plot <- plot + scale_colour_manual(values=c(bjp_color,congress_color))
+    plot <- plot + labs(colour="Parties",y="No. of Tweets") + ggtitle("Frequency of Partywise Tweets")
+    return(plot)
+}
+
+plotGeneralTweetFrequency <- function(allData) {
+    plot <- ggplot(allData,aes(x=Date,y=Frequency,group=1))
+    plot <- plot + geom_line(color=neg_color)
+    plot <- plot + labs(x="Days",y="No. of Tweets") + ggtitle("Frequency of Election Tweets")
+    return(plot)
+}
+
+plotRelativeFrequency <- function(rfData) {
+    plot <- ggplot(rfData,aes(Date,group=1))
+    plot <- plot + geom_line(aes(y=BJP,colour="BJP"))
+    plot <- plot + geom_line(aes(y=Congress,colour="Congress"))
+    plot <- plot + scale_colour_manual(values=c(bjp_color,congress_color))
+    plot <- plot + labs(colour="Parties",y="Relative Frequency") + ggtitle("Relative Frequency of Parties")
+    return(plot)
+}
+
+plotPNR <- function(pnrData) {
+    plot <- ggplot(pnrData,aes(Date,group=1))
+    plot <- plot + geom_line(aes(y=BJP,colour="BJP"))
+    plot <- plot + geom_line(aes(y=Congress,colour="Congress"))
+    plot <- plot + scale_colour_manual(values=c(bjp_color,congress_color))
+    plot <- plot + labs(colour="Parties",y="Positive - Negative Ratio") + ggtitle("Positive - Negative Ratio of Parties")
+    return(plot)
 }

@@ -1,0 +1,259 @@
+\documentclass{scrreprt}
+\usepackage{listings}
+\usepackage{underscore}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\hypersetup{
+    bookmarks=false,    % show bookmarks bar?
+    pdftitle={Software Requirement Specification},    % title
+    pdfauthor={Jean-Philippe Eisenbarth},                     % author
+    pdfsubject={TeX and LaTeX},                        % subject of the document
+    pdfkeywords={TeX, LaTeX, graphics, images}, % list of keywords
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=blue,       % color of internal links
+    citecolor=black,       % color of links to bibliography
+    filecolor=black,        % color of file links
+    urlcolor=purple,        % color of external links
+    linktoc=page            % only page is linked
+}%
+\def\myversion{1.0 }
+\date{}
+%\title{%
+
+%}
+
+\renewcommand{\labelitemii}{$\star$}
+
+
+\usepackage{hyperref}
+\begin{document}
+
+\begin{center}
+    \rule{16cm}{5pt}\vskip1cm
+    \begin{bfseries}
+        \Huge{SOFTWARE REQUIREMENTS\\ SPECIFICATION}\\
+        \vspace{1.8cm}
+        \LARGE{for}\\
+        \vspace{1.6cm}
+        \huge{Election Results Prediction Using Twitter Data}\\
+        \vspace{0.2cm}
+        \LARGE{By Applying Sentiment Analysis With Vector Modeling}\\
+        \vspace{1.6cm}
+        \huge{Version \myversion approved}\\
+        \vspace{1.6cm}
+        Prepared by\\ 
+        \vspace{0.2cm}
+        \LARGE{Naveen Vignesh.B - \textbf{110814104045}}\\
+        \LARGE{Silambarasan.K \textbf{110814104305}}\\
+        \vspace{1.6cm}
+      	  Jaya Engineering College\\
+    \end{bfseries}
+\end{center}
+
+\tableofcontents
+
+
+\chapter*{Revision History}
+
+\begin{center}
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+	    Name & Date & Reason For Changes & Version\\
+        \hline
+	    &  & & \\
+        \hline
+	   
+    \end{tabular}
+\end{center}
+
+\chapter{Introduction}
+
+\section{Purpose}
+The purpose of this document is to give a detailed description of the requirements for the “Twitter Based Election Prediction” software. It will illustrate the purpose and complete declaration for the
+development of system. It will also explain system constraints, interface and interactions with other external applications and APIs. This document is primarily intended to be proposed to a customer 
+for its approval and a reference for developing the first version of the system for the development team.
+
+%\section{Document Conventions}
+% will include term table here
+%Nothing for now - will include data later.
+
+\section{Intended Audience and Reading Suggestions}
+This project is a prototype for the Twitter based election prediction system and it is restricted within the college premises. This has been implemented under the guidance of college professors. This project is useful for psephologists and as well as political analysts for conducting their own analysis by applying the idea to different social media base.
+
+\section{Project Scope}
+The purpose of the twitter based election prediction system is to ease the process taking opinion poll from manually by going from place and place and try to derive an 
+analysis from social media to make job of predicting election easier. The system is based on mining textual data from social media sites in this case twitter and to filter data
+for specific political parties. Then each set of tweets relating to a particular party alone with be subjected to sentiment analysis. Results will be plotted in graph with visual descriptions 
+for psephologists to easily understand the data being projected.
+
+\section{References}
+\begin{itemize}
+	\item Kalampokis E., Karamanou A., Tambouris E., Tarabanis K.: On Predicting Election Results using Twitter and Linked Open Data: The Case of the UK 2010 Election 
+	\item Efthymios Kouloumpis., TheresaWilson., Johanna Moore.: Twitter Sentiment Analysis: The Good the Bad and the OMG!
+	\item Hung Viet Tran., Discovering entities' behavior through mining Twitter
+\end{itemize}
+
+
+
+\chapter{Overall Description}
+
+\section{Product Perspective}
+The election prediction system stores the following information.
+\begin{itemize}
+	\item \textbf{Twitter Data: } It includes all the tweets related to particular election and user information along with location of tweets and time stamp.
+	
+	\item \textbf{Sampling Data: } It includes all the dictionary words related to particular language that will be applied for sampling during sentiment analysis.
+\end{itemize}
+
+\section{Product Functions}
+The architecture of the system is described in the diagram below. \\
+
+% -------------------
+\begin{center}
+\includegraphics[width=25cm,height=10cm,keepaspectratio]{arch}\\
+\end{center}
+
+\section{User Classes and Characteristics}
+
+Users of the system should be able to mine tweets from Twitter via provided API and be able to store the data into Mongo DB. This process is to be done throughout the election period on a daily basis by running a worker thread to collect tweets. The system will support do the ability to perform data analysis on the data stored in the database. The database is a NoSQL database which can handle large data on which data analysis will be applied. The system with give plots of results and prediction for easy understanding by the psephologists. The analyist will be able to do the following functions.
+
+\begin{itemize}
+	\item Run the worker thread to collect tweets and store it into the mongo database.
+	\item Run analysis any time on any amount of data available to derive popularity of parties till the current time.
+	\item Be able to produce plots for easily understand and view the data.
+\end{itemize}
+
+\section{Operating Environment}
+Operating environment for the Twitter based Election Prediction System is as listed below : -
+\begin{itemize}
+	\item Software
+		\begin{itemize}
+			\item R framework
+			\item R Studio
+		\end{itemize}
+	\item Database
+		\begin{itemize}
+			\item Mongo DB 3.4.1
+		\end{itemize}
+	\item Rest APIs
+		\begin{itemize}
+			\item Twitter API
+		\end{itemize}
+	\item Operating System
+		\begin{itemize}
+			\item Linux Operation System
+		\end{itemize}
+\end{itemize}
+
+
+\section{Design and Implementation Constraints}
+
+The design and implementation constraints includes retrieval limits of tweets per request is to be limited to 10000 per run which is recommended for optimal retrieval.
+For security reasons personal twitter developer credentials must be used by psephologists to authenticate access to retrieve data.
+Due to large scale nature of data to be collected it is recommended to use No SQL database scheme like Mongo for database side implementation.
+
+
+\section{User Documentation}
+Steps to execute the project
+\begin{itemize}
+	\item Start Mongo DB Shell on Cloud Instance from dashboard.
+	\item Run the R script by using command \textbf{Rscript main.R}
+	\item Plots will be generated in a PDF file.
+\end{itemize}
+
+\section{Assumptions and Dependencies}
+
+Let us assume that this is a Twitter Based Election Prediction System and it will have the following constraints :
+\begin{itemize} 
+	\item Any change in Twitter API may affect the retrieval process.
+	\item User credentials must be renewed after a period of 2 years. During any updates the project must be given new credentials.
+	\item Also database to be stored must be live during analysis and must be scalable to include growing data base. 
+\end{itemize}
+
+\chapter{External Interface Requirements}
+
+\section{User Interfaces}
+
+\begin{itemize}
+	\item \textbf{Front-End Software :} PDF Plots, Shiny 
+\end{itemize}
+
+\section{Hardware Interfaces}
+
+\begin{itemize}
+	\item A PC supporting Windows / Linux OS
+	\item PC capable of running R framework
+	\item Remote Mongo Server Instance
+	\item Stable Internet Connection
+\end{itemize}
+
+\section{Software Interfaces}
+Following software is needed for Twitter Based Election Based Election. 
+\begin{itemize}
+	\item \textbf{Operating System:} Window Operating System - Windows was chosen for ease of user and familiarity
+	\item \textbf{Database:} Mongo DB - No SQL database scheme chosen as it implements distributed database architecture.
+	\item \textbf{Data Mining Tool:} R framework - Simple code with built in features.
+\end{itemize}
+
+\section{Communications Interfaces}
+\begin{itemize}
+	\item This project supports all basic internet connection
+	\item Stable internet is recommended for optimal data retrieval and database connectivity.
+\end{itemize}
+
+
+\chapter{System Features}
+
+\section{Twitter Authentication}
+The user must provide his/her twitter credentials in to authorize the system to obtain tweets for twitter database.
+Dashboard will be provided to login into twitter to obtain API credentials.
+
+\section{Data Archival}
+The system will provide the feature to store tweets as data frame into Mongo Database.
+This data can be archived and be kept for future analysis.
+
+\section{Sentiment Analysis}
+The system will implement sentiment analysis on twitter data sets to prevent the mindset of people on the particular political entity.
+We will use dictionary sample to deduct whether the language used is imperative and negative.
+
+\section{Graph Plots}
+The results will be plotted and will be generated as PDFs. A single PDF file with all plots for the project will be generated.
+Graph plots consist of popularity graph, number of tweets and sentiment scale for each set of tweets relating to particular party.
+
+\chapter{Other Nonfunctional Requirements}
+
+\section{Performance Requirements}
+The performance measurement tracks the speed of data retrieval and generates report about internet connectivity. 
+It also tracks the speed at which data is being stored at real time. This allows us the understand the scalability of database.
+
+\section{Security Requirements}
+To retrieve tweets we must use credential provided by twitter API. This is layer of security that allows use to prevent the access load on the 
+twitter servers for data retrieval.
+
+\chapter{Other Requirements}
+
+\section{Appendix A: Glossary}
+\begin{itemize}
+	\item \textbf{PDF} - Public Document Format
+	\item \textbf{API} - Application Interface
+	\item \textbf{DB} - Database
+\end{itemize}
+
+\section{Appendix B: Analysis Models}
+\LARGE{UML USE CASE}\\
+\includegraphics{usecase}\\
+
+\LARGE{UML ACTIVITY}\\
+\includegraphics{activity}\\
+
+\LARGE{UML SEQUENCE}\\
+\includegraphics{sequence}\\
+
+\includegraphics[width=25cm,height=10cm,keepaspectratio]{er}\\
+
+\end{document}
