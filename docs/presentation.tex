@@ -1,0 +1,235 @@
+\documentclass{beamer}
+\usetheme{AnnArbor}
+
+%gantt code
+\usepackage{xcolor,colortbl}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+% A package which allows simple repetition counts, and some useful commands
+
+\usepackage{forloop}
+\newcounter{loopcntr}
+\newcommand{\rpt}[2][1]{%
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{#2}%
+}
+\newcommand{\on}[1][1]{
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{&\cellcolor{gray}}
+}
+\newcommand{\onx}[1][1]{
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{&\cellcolor{orange}}
+}
+\newcommand{\off}[1][1]{
+  \forloop{loopcntr}{0}{\value{loopcntr}<#1}{&}
+}
+
+\definecolor{orange}{HTML}{FF7F00}
+
+%end of gantt initialization code
+
+\author[Naveen Vignesh.B, Silamabarasan.K]{
+	 Naveen Vignesh.B -
+	\textbf{110814104045}\\
+	\and
+	Silambarasan.K - 
+	\textbf{110814104305}
+	\newline \newline
+	\textbf{Guided By:} G.Bharathi Mohan - Associate Professor, \\
+	CSE Deptartment.
+}
+\institute[]{ \textbf{Jaya Engineering College}}
+\title[Twitter Based Election Prediction]{ Election Results Prediction using Twitter Data}
+\subtitle{By Applying Sentiment Analysis with Vector Modeling}
+\date{\today}
+
+\begin{document}
+\titlepage
+%abstract and objective
+\begin{frame}{Abstract and Objective}
+	\textbf{\textit{Abstract}} \newline
+      To predict the election trends using Twitter Data and analyse the sentiment of people to give favourable prediction to the popular party.
+	\newline \newline
+	\textbf{\textit{Objectives}}	   
+	\begin{itemize}
+		\item To analyze the trend of people mindset.
+		\item To give an qualitative prediction based on social data.
+		\item To quantify the sentiment of people shown towards a particular political party.
+		\item To analyse real time twitter data and give out the real time election wave.
+	\end{itemize}
+	
+\end{frame}
+
+%Litrature Survey
+\begin{frame}{Literature Survey}
+	\textbf{\textit{Predicting Election Results using Twitter and Linked Open Data}} \newline\
+	\begin{itemize}
+		\item A number of studies have recently explored Twitter's capabilities to predict outcomes
+		\begin{enumerate}
+			\item Elections [Tumasjan et al., 2010, Livne et al., 2011]
+			\item Stock market [Bollen et al., 2011]
+			\item Box office [Asur and Huberman., 2010]
+		\end{enumerate}
+	\item A recent studies revealed a number of small steps were involved to predict outcomes
+	\item Each outcome affected the final result in a large scale.
+	\end{itemize}
+\end{frame}
+
+%existing system
+\begin{frame}{Existing System}
+	\textbf{Manual Method}
+	\begin{itemize}
+		\item Go to physical location and take sample for local population.
+		\item Find a cumulative average among N people to favour a particular party and give results.
+	\end{itemize}
+	\textbf{Polling using Social Media}
+	\begin{itemize}
+		\item Conducting polls in social media platforms like twitter to get opinion manually from user.
+		\item User polling done without any filters like location or age or constituency eligibility.
+		\item Allows duplicate submissions by users as aliases are not filtered.
+	\end{itemize}
+\end{frame}
+
+%Proposed system
+\begin{frame}{Proposed System}
+	\begin{itemize}
+		\item Performs predictions based on the nature of tweets related to particular election based on hashtags or user identifiers.
+		\item Filteration of tweets based on nature of user with contrainst like age, location, country.
+		\item Tweets are analysed on basis of sentiments of users expressed in the tweet by comparing with a dictionary sample - Positive and Negative set of Words as textual sample.
+		\item Computing of favouratism based on predictor variables like
+			\begin{enumerate}
+				\item Number of tweets
+				\item Timestamp of tweets
+				\item User profile
+			\end{enumerate}
+		\item Calculating final result based on vector based probablistic quantifier and give out the prediction.
+	\end{itemize}
+\end{frame}
+
+%advantage of proposed system
+\begin{frame}{Advantage of Proposed System Over Existing System}
+	\begin{itemize}
+		\item Old method is active and requires the user to interact to give his/her poll opinion.
+		\item New method is passive and doesn't need user interaction as it get suggestions from tweets.
+		\item It is also more accurate as it analyses tweets from wide range of users.
+	\end{itemize}
+\end{frame}
+
+%architectural designs
+\begin{frame}{Architectural Design}
+\begin{center}
+	\includegraphics[width=18cm,height=9cm,keepaspectratio]{arch}
+\end{center}
+\end{frame}
+
+%uml diagrams
+\begin{frame}{Use Diagram}
+\begin{center}
+	\includegraphics[width=15cm,height=7cm,keepaspectratio]{usecase}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Sequence Diagram}
+\begin{center}
+	\includegraphics[width=10cm,height=8cm,keepaspectratio]{sequence}
+\end{center}
+\end{frame}
+
+\begin{frame}{Activity Diagram}
+\begin{center}
+	\includegraphics[width=18cm,height=6cm,keepaspectratio]{activity}
+	\end{center}
+\end{frame}
+
+
+\begin{frame}{ER Diagram}
+	\includegraphics[width=18cm,height=8cm,keepaspectratio]{er}
+\end{frame}
+
+%algorithms being used
+\begin{frame}{Algorithms Used}
+	\begin{itemize}
+		\item Sentiment Analysis Using Dictionary Sample
+		\item Vector based sentiment modeling
+	\end{itemize}
+\end{frame}
+%modules an gantt chart
+\begin{frame}{Modules and Gantt Chart}
+\textbf{Modules}
+\begin{enumerate}
+	\item R-Script
+	\item Twitter API Module
+	\item GUI Module - Graph Projection
+\end{enumerate}
+
+\noindent\begin{tabular}{p{0.17\textwidth}
+!{\vrule width 0.4mm}p{0.01\textwidth}*{3}{|p{0.01\textwidth}}
+!{\vrule width 0.4mm}p{0.01\textwidth}*{3}{|p{0.01\textwidth}}
+!{\vrule width 0.4mm}p{0.01\textwidth}*{3}{|p{0.01\textwidth}}
+!{\vrule width 0.4mm}p{0.01\textwidth}*{3}{|p{0.01\textwidth}}
+!{\vrule width 0.4mm}p{0.01\textwidth}*{3}{|p{0.01\textwidth}}
+|}
+
+\hline
+% The top line
+\textbf{Gantt chart} & \multicolumn{4}{c!{\vrule width 0.4mm}}{Month 1} 
+           & \multicolumn{4}{c!{\vrule width 0.4mm}}{Month 2} 
+           & \multicolumn{4}{c!{\vrule width 0.4mm}}{Month 3} 	
+           & \multicolumn{4}{c|}{Month 4} 
+      		\\
+\hline
+% The mbox prevent packages from being hyphenated
+% The multicolumn produces no vertical guides within the columns it spans, but
+% does put one at the end to complete the righ-hand edge of the table
+Analysis   \on[3] \off[13] \\
+\hline
+Design  \off[3] \on[4] \off[9] \\
+\hline
+% Note the omitting the count to on or off is the same as setting the count to 1
+Coding and Testing \off[6] \onx[8] \off[2] \\
+\hline
+Testing and Deployment \off[11] \on[5] \\
+\hline
+\end{tabular}
+
+\end{frame}
+
+%Expected Outcomes
+\begin{frame}{Expected Outcomes}
+	\begin{itemize}
+		\item The solution will perform passive analyis real-time twitter data without disturbing the users.
+		\item The solution proposed will be standalone application running on it own server thread analysing twitter data realtime for N days before election day.
+		\item The software will give overall rating for each day for respective party and will find cumulative distributive result of the overall standings.
+		\item The solution will be an R-Script that can be deployed even on a R-Server to monitor the real time scenario in social media.
+	\end{itemize}
+\end{frame}
+
+%Hardware and software requirements
+\begin{frame}{Hardware and Software Requirements}
+	\textbf{\textit{Software Tools Used:}}
+	\begin{itemize}
+		\item R Framework 3.4.1 - Community Edition
+		\item RStudio 1.0.143 - Community  Edition
+		\item Twitter API
+	\end{itemize} 
+
+	\textbf{\textit{Minimum Hardware Requirements:}}
+	\begin{itemize}
+		\item Intel-Compatible platform running Windows XP/Vista/7/8/10.
+		\item 32 MB of RAM.
+		\item 200 MB of HDD space.
+		\item Internet Connectivity.
+	\end{itemize}
+\end{frame}
+
+%reference
+\begin{frame}{Reference}
+	\begin{itemize}
+		\item Kalampokis, Karamanou, Tambouris, Tarabanis - On Predicting Election Results using Twitter and Linked Open Data - \textbf{Journal of Universal Computer Science, vol. 23, no. 3 (2017), 280-303}
+	 	\item Ausr, S.Huberman, B.A. (2010) - Predicting the future with social media - \textbf{Proceedings of 2010 IEEE/WIC/ACM International Conference.}
+	 	\item Bollen, J., Mao, H., Zeng, X. - Twitter mood predicts the stock market - \textbf{Journal of Computational Science}
+	 	\item Tumasjan, A., Sprenger, T.,Sandner, P.,Welpe, - Predicting elections with twitter: What 140 characters reveal about political sentiment - \textbf{4th International AAA1 Conference on Weblogs and Social Media}
+	\end{itemize}
+\end{frame}
+
+\end{document}
